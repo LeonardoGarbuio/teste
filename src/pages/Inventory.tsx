@@ -24,25 +24,25 @@ export default function Inventory() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900 mb-6">Nosso Estoque</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">Nosso Estoque</h1>
 
                 {/* Filters */}
-                <div className="bg-white p-2 rounded-full shadow-sm border border-slate-100 flex flex-col md:flex-row gap-2 items-center">
-                    <div className="relative flex-grow w-full md:w-auto">
+                <div className="bg-white p-3 md:p-2 rounded-2xl md:rounded-full shadow-sm border border-slate-100 flex flex-col md:flex-row gap-3 md:gap-2 items-stretch md:items-center">
+                    <div className="relative flex-grow w-full">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                         <input
                             type="text"
                             placeholder="Buscar por modelo..."
-                            className="w-full pl-12 pr-4 py-3 rounded-full border-none bg-slate-50 focus:bg-white focus:ring-2 focus:ring-primary transition-all outline-none"
+                            className="w-full pl-12 pr-4 py-3 rounded-xl md:rounded-full border border-slate-200 md:border-none bg-slate-50 focus:bg-white focus:ring-2 focus:ring-primary transition-all outline-none"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
 
-                    <div className="relative group min-w-[200px]">
+                    <div className="relative group w-full md:w-auto md:min-w-[200px]">
                         <button
                             onClick={() => setIsBrandOpen(!isBrandOpen)}
-                            className="w-full flex items-center justify-between gap-2 bg-slate-50 px-4 py-3 rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors text-slate-700 font-medium"
+                            className="w-full flex items-center justify-between gap-2 bg-slate-50 px-4 py-3 rounded-xl md:rounded-full border border-slate-200 hover:border-primary hover:text-primary transition-colors text-slate-700 font-medium"
                         >
                             <div className="flex items-center gap-2">
                                 <Filter size={20} className="text-slate-500 group-hover:text-primary transition-colors" />

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Car, Menu, X, Phone } from 'lucide-react';
+import { Menu, X, Phone } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -9,9 +9,12 @@ export default function Navbar() {
         <nav className="bg-primary text-white shadow-lg sticky top-0 z-50">
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-center h-20">
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2 font-bold text-2xl tracking-tighter hover:text-gray-200 transition">
-                        <Car className="h-8 w-8 text-white" />
+                    <Link to="/" className="flex items-center gap-3 font-bold text-2xl tracking-tighter hover:text-gray-200 transition">
+                        <img
+                            src="/346040670_245246548173053_782958878982251973_n.jpg"
+                            alt="DL Automóveis"
+                            className="h-12 w-12 rounded-full object-cover border-2 border-white/20 shadow-lg"
+                        />
                         <span>DL AUTOMÓVEIS</span>
                     </Link>
 
@@ -51,8 +54,12 @@ export default function Navbar() {
                 <div className="flex flex-col h-full">
                     {/* Drawer Header */}
                     <div className="flex justify-between items-center p-6 border-b border-white/10">
-                        <div className="flex items-center gap-2">
-                            <Car className="h-6 w-6 text-white" />
+                        <div className="flex items-center gap-3">
+                            <img
+                                src="/346040670_245246548173053_782958878982251973_n.jpg"
+                                alt="DL Automóveis"
+                                className="h-10 w-10 rounded-full object-cover border-2 border-white/20"
+                            />
                             <span className="font-bold text-lg text-white tracking-tighter">DL AUTOMÓVEIS</span>
                         </div>
                         <button
@@ -103,6 +110,6 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
-        </nav>
+        </nav >
     );
 }

@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { Car, LayoutDashboard, LogOut, PlusCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { isLocallyAuthenticated, localLogout } from '../../lib/auth';
 import { useEffect, useState } from 'react';
 
 export default function AdminLayout() {
@@ -8,6 +9,13 @@ export default function AdminLayout() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Verifica auth local primeiro
+        if (isLocallyAuthenticated()) {
+            setLoading(false);
+            return;
+        }
+
+        // Se não tem auth local, verifica Supabase
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (!session) {
                 navigate('/admin/login');
@@ -17,6 +25,7 @@ export default function AdminLayout() {
     }, [navigate]);
 
     const handleLogout = async () => {
+        localLogout();
         await supabase.auth.signOut();
         navigate('/admin/login');
     };

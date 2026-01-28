@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { localLogin } from '../../lib/auth';
 import { Car, Lock } from 'lucide-react';
 
 export default function Login() {
@@ -15,13 +16,20 @@ export default function Login() {
         setLoading(true);
         setError('');
 
+        // Tenta login local primeiro (para desenvolvimento)
+        if (localLogin(email, password)) {
+            navigate('/admin');
+            return;
+        }
+
+        // Se não for login local, tenta Supabase
         const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
         if (error) {
-            setError(error.message);
+            setError('Email ou senha incorretos');
             setLoading(false);
         } else {
             navigate('/admin');

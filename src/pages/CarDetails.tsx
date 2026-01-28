@@ -2,12 +2,14 @@ import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { carService } from '../services/carService';
 import type { Car } from '../data/mockCars';
-import { ArrowLeft, Calendar, Fuel, Gauge, PenTool as Tool, MapPin, Phone, Share2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Fuel, Gauge, PenTool as Tool, MapPin, Phone, Share2, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 export default function CarDetails() {
     const { id } = useParams();
     const [car, setCar] = useState<Car | null>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedImage, setSelectedImage] = useState(0);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -32,15 +34,70 @@ export default function CarDetails() {
     const whatsappMessage = encodeURIComponent(`Olá, vi o ${car.title} no site e gostaria de mais informações.`);
     const whatsappLink = `https://wa.me/5542999260016?text=${whatsappMessage}`;
 
+    const nextImage = () => {
+        setSelectedImage((prev) => (prev + 1) % car.images.length);
+    };
+
+    const prevImage = () => {
+        setSelectedImage((prev) => (prev - 1 + car.images.length) % car.images.length);
+    };
+
     return (
         <div className="bg-slate-50 min-h-screen pb-12">
+            {/* Lightbox Modal */}
+            {lightboxOpen && (
+                <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
+                    <button
+                        onClick={() => setLightboxOpen(false)}
+                        className="absolute top-4 right-4 text-white/70 hover:text-white p-2 transition"
+                    >
+                        <X size={32} />
+                    </button>
+
+                    <button
+                        onClick={prevImage}
+                        className="absolute left-4 text-white/70 hover:text-white p-2 transition"
+                    >
+                        <ChevronLeft size={48} />
+                    </button>
+
+                    <img
+                        src={car.images[selectedImage]}
+                        alt={car.title}
+                        className="max-w-[90vw] max-h-[90vh] object-contain"
+                    />
+
+                    <button
+                        onClick={nextImage}
+                        className="absolute right-4 text-white/70 hover:text-white p-2 transition"
+                    >
+                        <ChevronRight size={48} />
+                    </button>
+
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70">
+                        {selectedImage + 1} / {car.images.length}
+                    </div>
+                </div>
+            )}
+
             <div className="bg-white border-b border-slate-200 sticky top-20 z-40 shadow-sm">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <Link to="/estoque" className="flex items-center gap-2 text-slate-600 hover:text-primary font-medium">
                         <ArrowLeft size={20} /> Voltar
                     </Link>
                     <div className="font-bold text-lg text-slate-800 truncate hidden md:block">{car.title}</div>
-                    <button className="text-slate-400 hover:text-primary transition">
+                    <button
+                        onClick={() => {
+                            navigator.share?.({
+                                title: car.title,
+                                url: window.location.href
+                            }).catch(() => {
+                                navigator.clipboard.writeText(window.location.href);
+                                alert('Link copiado!');
+                            });
+                        }}
+                        className="text-slate-400 hover:text-primary transition"
+                    >
                         <Share2 size={24} />
                     </button>
                 </div>
@@ -50,26 +107,82 @@ export default function CarDetails() {
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Main Content - Gallery */}
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden aspect-video relative">
-                            <img src={car.images[0]} alt={car.title} className="w-full h-full object-cover" />
+                        {/* Main Image */}
+                        <div
+                            className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden aspect-video relative cursor-pointer group"
+                            onClick={() => setLightboxOpen(true)}
+                        >
+                            <img
+                                src={car.images[selectedImage]}
+                                alt={car.title}
+                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            />
+
+                            {car.images.length > 1 && (
+                                <>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition opacity-0 group-hover:opacity-100"
+                                    >
+                                        <ChevronLeft size={24} />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition opacity-0 group-hover:opacity-100"
+                                    >
+                                        <ChevronRight size={24} />
+                                    </button>
+                                </>
+                            )}
+
                             {car.is_sold && (
                                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                     <span className="bg-red-600 text-white text-3xl font-bold px-8 py-4 rounded-xl uppercase transform -rotate-12 border-4 border-white">Vendido</span>
                                 </div>
                             )}
+
+                            <div className="absolute bottom-4 right-4 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
+                                {selectedImage + 1} / {car.images.length}
+                            </div>
                         </div>
+
+                        {/* Thumbnails Grid */}
+                        {car.images.length > 1 && (
+                            <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                                {car.images.map((img, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setSelectedImage(index)}
+                                        className={`aspect-square rounded-lg overflow-hidden border-2 transition ${selectedImage === index
+                                                ? 'border-primary ring-2 ring-primary/30'
+                                                : 'border-transparent hover:border-slate-300'
+                                            }`}
+                                    >
+                                        <img
+                                            src={img}
+                                            alt={`${car.title} - foto ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Description Card */}
                         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                             <h3 className="text-xl font-bold text-slate-900 mb-4">Sobre este veículo</h3>
-                            <p className="text-slate-600 leading-relaxed">
-                                Veículo em excelente estado de conservação. Procedência garantida, revisado e com garantia da loja.
-                                Entre em contato para mais detalhes ou para agendar uma visita.
+                            <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                {car.description || 'Veículo em excelente estado de conservação. Procedência garantida, revisado e com garantia da loja. Entre em contato para mais detalhes ou para agendar uma visita.'}
                             </p>
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-medium">Aceita Troca</span>
                                 <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-medium">Financia</span>
                                 <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-medium">IPVA 2024 Pago</span>
+                                {car.color && (
+                                    <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-medium">
+                                        Cor: {car.color}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>

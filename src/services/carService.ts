@@ -1,12 +1,18 @@
 import { supabase } from '../lib/supabase';
-import type { Car } from '../data/mockCars';
+import { mockCars, type Car } from '../data/mockCars';
 
 // Tipo para criação/edição (sem ID)
 export type CarInput = Omit<Car, 'id'>;
 
+// Flag para usar dados mock (para desenvolvimento)
+const USE_MOCK_DATA = true;
+
 export const carService = {
     // Listar todos
     async getAll() {
+        if (USE_MOCK_DATA) {
+            return mockCars;
+        }
         const { data, error } = await supabase
             .from('cars')
             .select('*')
@@ -18,6 +24,9 @@ export const carService = {
 
     // Busca para vitrine (público) - Pode adicionar filtros aqui
     async getPublicInventory() {
+        if (USE_MOCK_DATA) {
+            return mockCars.filter(car => !car.is_sold);
+        }
         const { data, error } = await supabase
             .from('cars')
             .select('*')
@@ -31,6 +40,9 @@ export const carService = {
 
     // Pegar Destaques
     async getFeatured() {
+        if (USE_MOCK_DATA) {
+            return mockCars.filter(car => car.featured).slice(0, 4);
+        }
         const { data, error } = await supabase
             .from('cars')
             .select('*')
@@ -43,6 +55,11 @@ export const carService = {
 
     // Pegar um por ID
     async getById(id: string) {
+        if (USE_MOCK_DATA) {
+            const car = mockCars.find(c => c.id === id);
+            if (!car) throw new Error('Carro não encontrado');
+            return car;
+        }
         const { data, error } = await supabase
             .from('cars')
             .select('*')
